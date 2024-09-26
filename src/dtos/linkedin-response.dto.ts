@@ -24,6 +24,7 @@ export interface JobDto extends JobLightDto {
   jobUrl?: string;
   jobTitle?: string;
   companyName?: string;
+  companyId?: string;
   location?: string;
   postedTime?: string;
   applicationCount?: string;
@@ -34,4 +35,7 @@ export interface JobDto extends JobLightDto {
   description?: string;
   posterProfileUrl?: string;
   posterFullName?: string;
+  applyType?: string;
+  applyUrl?: string;
+  salary?: string;
 }

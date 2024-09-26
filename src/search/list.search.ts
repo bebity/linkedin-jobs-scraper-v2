@@ -123,9 +123,22 @@ export class ListSearch extends AbstractSearch<
     for (const job of this.output || []) {
       result.push(new DetailsSearch(job));
     }
-    if (this.aggregatedCount < (this.input?.rows || 0)) {
-      result.push(this.getNext(this.lastLiCount));
+
+    const maxLimit = Math.min(this.input?.rows || 999, 999);
+
+    if (this.aggregatedCount < maxLimit) {
+      const nextCount = this.lastLiCount + this.aggregatedCount;
+
+      if (nextCount < maxLimit) {
+        result.push(this.getNext(this.lastLiCount));
+      } else if (this.aggregatedCount < maxLimit) {
+        const remaining = maxLimit - this.aggregatedCount;
+        if (remaining > 0) {
+          result.push(this.getNext(remaining));
+        }
+      }
     }
+
     return result;
   }
 
@@ -137,7 +150,7 @@ export class ListSearch extends AbstractSearch<
     const content = await div?.evaluate((el) =>
       el.getAttribute('data-entity-urn'),
     );
-    return content || undefined;
+    return content?.split(':')?.reverse()?.[0] || undefined;
   }
 
   protected async getPublishedDateFromLIElement(
@@ -183,7 +196,7 @@ export class ListSearch extends AbstractSearch<
     const div = await li.$('.hidden-nested-link');
     const url =
       (await div?.evaluate((el) => el.getAttribute('href'))) || undefined;
-    return url ? new URL(url).pathname : undefined;
+    return url ? new URL(url).href : undefined;
   }
 
   protected override async resolvePuppeteerSearch(
