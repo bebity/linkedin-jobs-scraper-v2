@@ -1,8 +1,8 @@
 // Apify SDK - toolkit for building Apify Actors (Read more at https://docs.apify.com/sdk/js/)
-import log from '@apify/log';
-import { Actor } from 'apify';
+import { Actor, log } from 'apify';
 import { addSearch } from './crawlers/puppeteer.crawler.js';
 import { SearchFactory } from './search/search.factory.js';
+import { InputDto } from './dtos/scraper.input.js';
 
 // Crawlee - web scraping and browser automation library (Read more at https://crawlee.dev)
 // this is ESM project, and as such, it requires you to specify extensions in your relative imports
@@ -10,20 +10,33 @@ import { SearchFactory } from './search/search.factory.js';
 // note that we need to use `.js` even when inside TS files
 // import { router } from './routes.js';
 
-log.setLevel(log.LEVELS.DEBUG);
-
-interface Input {
-  // startUrls: string[];
-  // maxRequestsPerCrawl: number;
-}
+// log.setLevel(log.LEVELS.OFF);
 
 await Actor.init();
 
-const proxyConfiguration = await Actor.createProxyConfiguration();
+const input = await Actor.getInput<InputDto>();
+
 
 const search = SearchFactory.list({
-  searchLocation: 'United States',
+  f_WT: input?.workType,
+  f_JT: input?.contractType,
+  f_E: input?.experienceLevel,
+  f_TPR: input?.publishedAt,
+  searchCompany: input?.companyName,
+  searchLocation: input?.location,
+  keywords: input?.title,
+  rows: input?.rows || 100,
 });
+
+await search.addExtrasToUrl();
+
+await addSearch(search);
+
+// const search = SearchFactory.list({
+//   searchLocation: 'United States',
+// });
+
+await search.addExtrasToUrl();
 
 await addSearch(search);
 

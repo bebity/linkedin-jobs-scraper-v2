@@ -17,9 +17,9 @@ export class SearchFactory {
     }
     switch (search.type) {
       case SearchType.LIST_SEARCH:
-        return new ListSearch(search.input).as<T>();
+        return new ListSearch(search.input).as<ListSearch>().setBlankPageCount(search.blankPageCount).setAgregatedCount(search.aggregatedCount || 0) as any;
       case SearchType.JOB_DETAILS:
-        return new DetailsSearch(search.input).as<T>();
+        return new DetailsSearch(search.input).as<T>().setBlankPageCount(search.blankPageCount);
     }
   }
 

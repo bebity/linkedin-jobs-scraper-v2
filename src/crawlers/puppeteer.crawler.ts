@@ -1,5 +1,5 @@
 // Apify SDK - toolkit for building Apify Actors (Read more at https://docs.apify.com/sdk/js/)
-import { Actor } from 'apify';
+import { Actor, log } from 'apify';
 import {
   BrowserName,
   DeviceCategory,
@@ -15,16 +15,31 @@ import {
   SearchType,
 } from '../search/search.abstract.js';
 import { SearchFactory } from '../search/search.factory.js';
+import { add } from 'lodash';
+import { InputDto } from '../dtos/scraper.input.js';
 
-const proxyConfiguration = await Actor.createProxyConfiguration();
+await Actor.init();
+const input = await Actor.getInput<InputDto>();
+const proxyConfiguration = input?.proxy
+  ? await Actor.createProxyConfiguration({
+      useApifyProxy: input?.proxy?.useApifyProxy,
+      apifyProxyGroups: input?.proxy?.apifyProxyGroups,
+      apifyProxyCountry: input?.proxy?.apifyProxyCountry,
+      proxyUrls: input?.proxy?.proxyUrls,
+    })
+  : await Actor.createProxyConfiguration({
+      groups: ['RESIDENTIAL'],
+    });
 
 (puppeteerExtra as any).use(stealthPlugin());
 
 const crawler = new PuppeteerCrawler({
   proxyConfiguration,
-  maxRequestRetries: 5,
+  maxRequestRetries: 300,
   // maxRequestsPerCrawl: 1,
-
+  experiments: {
+    requestLocking: false,
+  },
   // Sessions
   useSessionPool: true,
   persistCookiesPerSession: true,
@@ -47,7 +62,10 @@ const crawler = new PuppeteerCrawler({
       },
     },
   },
-
+  errorHandler: async ({ request, session }) => {
+    // log.error(`Request ${request.url} failed too many times trying...`);
+    session?.retire();
+  },
   requestHandler: async (handle) => {
     const {
       session,
@@ -55,8 +73,6 @@ const crawler = new PuppeteerCrawler({
       request: { userData, ...req },
     } = handle;
     const search = SearchFactory.fromSearch(userData.search);
-
-    console.log('search', search);
 
     const content = await page?.content();
 
@@ -68,11 +84,35 @@ const crawler = new PuppeteerCrawler({
 
     await search.resolveSearch({ puppeteer: page });
 
-    if (search.type === SearchType.LIST_SEARCH) {
-      for (const job of search.as(ListSearch)?.output || []) {
-        await addSearch(SearchFactory.details(job));
+    if (search.isBlank()) {
+      search.incrementBlankPageCount();
+      if (search.isMaxBlankPage()) {
+        log.error('Too many blank pages');
+        throw Error('Too many blank pages');
       }
     }
+
+    await search.saveData();
+
+    await addSearch(search.getNextSearch());
+
+    // if (search.type === SearchType.LIST_SEARCH) {
+    //   const responseLength = search.as(ListSearch)?.output?.length || 0;
+    //   for (const job of search.as(ListSearch).output || []) {
+    //     await addSearch(SearchFactory.details(job));
+    //   }
+    // if (!responseLength) {
+    //   console.log('NO JOBS', search.as(ListSearch)?.output);
+    //   if (search.as(ListSearch).blankPageCount > 3) {
+    //     throw Error('Too many blank pages');
+    //   }
+    //   // await addSearch(SearchFactory.list(search.as(ListSearch).incrementBlankPageCount().toSearch()));
+    // }
+
+    // else {
+    //   await addSearch(search.as(ListSearch).getNext(responseLength));
+    // }
+    // }
 
     // if (!search.input?.start) {
     //   await addSearch(listSearch.getNext(25));

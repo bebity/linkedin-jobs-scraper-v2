@@ -5,20 +5,33 @@ import {
   LinkedinLocationResponseDto,
 } from '../dtos/linkedin-response.dto.js';
 import { LinkedinJobSearchWithInternalFiltersInputDto } from '../dtos/linkedin-search.input.js';
-import { AbstractSearch, SearchType } from './search.abstract.js';
+import { AbstractSearch, ISearch, SearchType } from './search.abstract.js';
+import { DetailsSearch } from './details.search.js';
+import { log } from 'apify';
 
 export class ListSearch extends AbstractSearch<
-  LinkedinJobSearchWithInternalFiltersInputDto | undefined,
+  LinkedinJobSearchWithInternalFiltersInputDto,
   JobLightDto[]
 > {
   type = SearchType.LIST_SEARCH;
+
+  maxBlankPageCount = 5;
+
+  lastLiCount = 0;
+
+  aggregatedCount = 0;
+
+  setAgregatedCount(count: number) {
+    this.aggregatedCount = count;
+    return this;
+  }
 
   getUrl() {
     // console.log('getUrl', this.input);
     const url = new URL(
       'https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?',
     );
-    const excludeKeys = ['searchLocation', 'searchCompany'];
+    const excludeKeys = ['searchLocation', 'searchCompany', 'rows'];
     Object.entries(this.input || {}).forEach(([key, value]) => {
       if (value && !excludeKeys.includes(key)) {
         url.searchParams.append(key, value.toString());
@@ -32,6 +45,8 @@ export class ListSearch extends AbstractSearch<
       ...(this.input || {}),
       location: await this.searchLocation(),
       searchLocation: undefined,
+      searchCompany: undefined,
+      f_C: await this.searchCompany(),
     };
     return this.buildUrl();
   }
@@ -51,16 +66,67 @@ export class ListSearch extends AbstractSearch<
     return encodeURI(`${firstElement.displayName}${firstElement.id}`);
   }
 
+  protected async searchCompany(): Promise<string | undefined> {
+    const searchCompany = this.input?.searchCompany || [];
+
+    const promises = searchCompany.map(async (company) => {
+      const res = await requestHttpCrawler<any[]>(
+        `https://linkedin.com/jobs-guest/api/typeaheadHits?typeaheadType=COMPANY&query=${encodeURIComponent(
+          company,
+        )}`,
+      );
+
+      const firstElement = res[0] as LinkedinLocationResponseDto | undefined;
+      if (!firstElement) {
+        log.warning(
+          `⚠️ Company ${searchCompany} not found, be sure it is written correctly. (Results may be affected) ⚠️`,
+        );
+        return undefined;
+      }
+      return firstElement.id;
+    });
+
+    const res = (await Promise.all(promises)).filter(Boolean);
+
+    return res.join(',');
+  }
+
   getNext(resultsNbMoreToSkip: number) {
     const newInput = {
       ...this.input,
       start: (this.input?.start || 0) + resultsNbMoreToSkip,
+      blankPageCount: 0,
     };
     return new ListSearch(newInput);
   }
 
+  async saveData() {
+    this.aggregatedCount += this.output?.length || 0;
+  }
+
+  override toSearch(): ISearch<
+    LinkedinJobSearchWithInternalFiltersInputDto,
+    JobLightDto[]
+  > {
+    return {
+      ...super.toSearch(),
+      aggregatedCount: this.aggregatedCount,
+    };
+  }
+
   override getName(opt?: { unique?: boolean }) {
     return `${this.type}_${this.input?.start || 0}${opt?.unique ? `_${this.id}` : ''}`;
+  }
+
+  override getNextSearch(): AbstractSearch<any, any>[] {
+    const result = [];
+    for (const job of this.output || []) {
+      result.push(new DetailsSearch(job));
+    }
+    if (this.aggregatedCount < (this.input?.rows || 0)) {
+      result.push(this.getNext(this.lastLiCount));
+    }
+    return result;
   }
 
   protected async getIdFromLIElement(
@@ -128,24 +194,43 @@ export class ListSearch extends AbstractSearch<
       throw new Error('No main list found');
     }
 
-    console.log('resolvePuppeteerSearch mainList', mainList.length);
+    this.lastLiCount = mainList.length;
+
+    // console.log('resolvePuppeteerSearch mainList', mainList.length);
 
     const rslt: JobLightDto[] = [];
     for (const li of mainList) {
-      const id = await this.getIdFromLIElement(puppeteer, li);
+      const id = await this.nullWrapper(
+        () => this.getIdFromLIElement(puppeteer, li),
+        'id',
+      );
       if (!id) {
         continue;
       }
       rslt.push({
         id,
-        title: await this.getTitleFromLIElement(puppeteer, li),
-        companyName: await this.getCompanyNameFromLIElement(puppeteer, li),
-        companyURL: await this.getCompanyURLFromLIElement(puppeteer, li),
-        publishedDate: await this.getPublishedDateFromLIElement(puppeteer, li),
+        title: await this.nullWrapper(
+          () => this.getTitleFromLIElement(puppeteer, li),
+          'title',
+        ),
+        companyName: await this.nullWrapper(
+          () => this.getCompanyNameFromLIElement(puppeteer, li),
+          'companyName',
+        ),
+        companyURL: await this.nullWrapper(
+          () => this.getCompanyURLFromLIElement(puppeteer, li),
+          'companyURL',
+        ),
+        publishedAt: await this.nullWrapper(
+          () => this.getPublishedDateFromLIElement(puppeteer, li),
+          'publishedAt',
+        ),
       });
     }
-
-    console.log('resolvePuppeteerSearch rslt', rslt.length);
     return rslt;
+  }
+
+  public isBlank() {
+    return !this.output?.length;
   }
 }

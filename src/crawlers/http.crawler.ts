@@ -1,15 +1,25 @@
 import { createId } from '@paralleldrive/cuid2';
 import { Actor } from 'apify';
 import { HttpCrawler, Source } from 'crawlee';
+import { InputDto } from '../dtos/scraper.input.js';
 
 const resolvers: Record<
   string,
   { resolve: (data: any) => void; reject: (data: any) => void }
 > = {};
 
-const proxyConfiguration = await Actor.createProxyConfiguration({
-  useApifyProxy: true,
-});
+await Actor.init();
+const input = await Actor.getInput<InputDto>();
+const proxyConfiguration = input?.proxy
+  ? await Actor.createProxyConfiguration({
+      useApifyProxy: input?.proxy?.useApifyProxy,
+      apifyProxyGroups: input?.proxy?.apifyProxyGroups,
+      apifyProxyCountry: input?.proxy?.apifyProxyCountry,
+      proxyUrls: input?.proxy?.proxyUrls,
+    })
+  : await Actor.createProxyConfiguration({
+      groups: ['RESIDENTIAL'],
+    });
 
 const crawler = new HttpCrawler({
   // The crawler downloads and processes the web pages in parallel, with a concurrency
