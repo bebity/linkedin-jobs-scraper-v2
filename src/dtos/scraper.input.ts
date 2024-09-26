@@ -6,7 +6,6 @@ export interface InputDto {
   contractType?: string;
   experienceLevel?: string;
   companyName?: string[];
-  companyId?: string[];
   publishedAt?: string;
   proxy?: {
     useApifyProxy: boolean;

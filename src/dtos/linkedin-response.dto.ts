@@ -17,7 +17,21 @@ export interface JobLightDto {
   title?: string | undefined;
   companyName?: string | undefined;
   companyURL?: string | undefined;
-  publishedDate?: string | undefined;
+  publishedAt?: string | undefined;
 }
 
-export interface JobDto extends JobLightDto {}
+export interface JobDto extends JobLightDto {
+  jobUrl?: string;
+  jobTitle?: string;
+  companyName?: string;
+  location?: string;
+  postedTime?: string;
+  applicationCount?: string;
+  contractType?: string;
+  experienceLevel?: string;
+  workType?: string;
+  sector?: string;
+  description?: string;
+  posterProfileUrl?: string;
+  posterFullName?: string;
+}

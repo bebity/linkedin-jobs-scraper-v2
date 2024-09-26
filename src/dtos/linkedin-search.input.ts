@@ -7,10 +7,13 @@ export interface LinkedinJobSearchInputDto {
   f_C?: string; // company ids joined by comma
   start?: number; // start index
   location?: string; // name + geoId
+  keywords?: string; // keywords
 }
 
 export interface LinkedinJobSearchWithInternalFiltersInputDto
   extends LinkedinJobSearchInputDto {
   searchLocation?: string;
-  searchCompany?: string;
+  searchCompany?: string[];
+  rows: number;
+  // blankPageCount?: number;
 }

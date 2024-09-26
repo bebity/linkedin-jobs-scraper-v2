@@ -121,8 +121,9 @@ const miscCrawler = new CheerioCrawler({
     maxRequestRetries: 999,
     // keepAlive: true,
     // navigationTimeoutSecs: 60,
-    failedRequestHandler: async ({ request, enqueueLinks }) => {
+    failedRequestHandler: async ({ request, enqueueLinks, session }) => {
         log.error(`Request ${request.url} failed too many times retrying...`);
+        await session?.retire();
         await enqueueLinks({
             urls: [request.url],
             userData: { label: request.userData.label },
