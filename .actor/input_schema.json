@@ -1,24 +1,153 @@
 {
-    "title": "CheerioCrawler Template",
+    "title": "LinkedIn Jobs Inputs",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
-        "startUrls": {
-            "title": "Start URLs",
+        "title": {
+            "title": "Job title",
+            "type": "string",
+            "default": "",
+            "description": "The name of the job (e.g. Web developer).",
+            "nullable": false,
+            "editor": "textfield"
+        },
+        "location": {
+            "title": "Job location",
+            "type": "string",
+            "default": "United States",
+            "description": "The location of the job (e.g. Paris, New York).",
+            "nullable": false,
+            "editor": "textfield"
+        },
+        "companyName": {
+            "title": "Company name",
             "type": "array",
-            "description": "URLs to start with.",
-            "editor": "requestListSources",
+            "description": "The name(s) of the company(ies) (e.g. Google, NASA).",
             "prefill": [
-                {
-                    "url": "https://crawlee.dev"
-                }
+                "Google",
+                "Microsoft"
+            ],
+            "editor": "stringList"
+        },
+        "companyId": {
+            "title": "Company id",
+            "type": "array",
+            "description": "The ID(s) of the company(ies) (e.g. Facebook: 76987811, Uber: 1815218). Provide only the id numbers.",
+            "prefill": [
+                "76987811",
+                "1815218"
+            ],
+            "editor": "stringList"
+        },
+        "publishedAt": {
+            "title": "Published at",
+            "type": "string",
+            "description": "Select work type to display",
+            "editor": "select",
+            "default": "",
+            "enum": [
+                "",
+                "r2592000",
+                "r604800",
+                "r86400"
+            ],
+            "enumTitles": [
+                "Any Time",
+                "Past Month",
+                "Past Week",
+                "Past 24 hours"
             ]
         },
-        "maxRequestsPerCrawl": {
-            "title": "Max Requests per Crawl",
+        "rows": {
+            "title": "Total rows",
             "type": "integer",
-            "description": "Maximum number of requests that can be made by this crawler.",
-            "default": 100
+            "description": "How much rows do you want to display ? (e.g. 100)",
+            "default": 50,
+            "maximum": 1000,
+            "nullable": false
+        },
+        "workType": {
+            "title": "On-site/Remote",
+            "type": "string",
+            "description": "Select work type to display",
+            "editor": "select",
+            "enum": [
+                "1",
+                "2",
+                "3"
+            ],
+            "enumTitles": [
+                "On-Site",
+                "Remote",
+                "Hybrid"
+            ]
+        },
+        "contractType": {
+            "title": "Job type",
+            "type": "string",
+            "description": "Select job type to display",
+            "editor": "select",
+            "enum": [
+                "F",
+                "P",
+                "C",
+                "T",
+                "I",
+                "V"
+            ],
+            "enumTitles": [
+                "Full-time",
+                "Part-time",
+                "Contract",
+                "Temporary",
+                "Internship",
+                "Volunteer"
+            ]
+        },
+        "experienceLevel": {
+            "title": "Experience Level",
+            "type": "string",
+            "description": "Select the experience levels to be displayed",
+            "editor": "select",
+            "enum": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+            ],
+            "enumTitles": [
+                "Internship",
+                "Entry level",
+                "Associate",
+                "Mid-Senior level",
+                "Director"
+            ]
+        },
+        "proxy": {
+            "title": "Proxy configuration",
+            "type": "object",
+            "description": "Select proxies to be used.",
+            "sectionCaption": "🚀 Proxy settings",
+            "sectionDescription": "Configure proxies to be used for the search.",
+            "prefill": {
+                "useApifyProxy": true,
+                "apifyProxyGroups": [
+                    "RESIDENTIAL"
+                ]
+            },
+            "default": {
+                "useApifyProxy": true,
+                "apifyProxyGroups": [
+                    "RESIDENTIAL"
+                ]
+            },
+            "editor": "proxy"
         }
-    }
+    },
+    "required": [
+        "title",
+        "location",
+        "rows"
+    ]
 }

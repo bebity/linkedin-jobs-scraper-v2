@@ -1,12 +1,125 @@
 {
-	"actorSpecification": 1,
-	"name": "linkedin-jobs-scraper-crawlee",
-	"title": "Project Cheerio Crawler Typescript",
-	"description": "Crawlee and Cheerio project in typescript.",
-	"version": "0.0",
-	"meta": {
-		"templateId": "ts-crawlee-cheerio"
-	},
-	"input": "./input_schema.json",
-	"dockerfile": "./Dockerfile"
+    "actorSpecification": 1,
+    "name": "linkedin-jobs-scraper",
+    "title": "LinkedIn Jobs Finder",
+    "description": "Designed for both personal and professional use, simply enter your desired job title and location to receive a tailored list of job opportunities. Try it today!",
+    "version": "0.0.1",
+    "input": "./input-schema.json",
+    "readme": "./README.md",
+    "dockerfile": "./Dockerfile",
+    "storages": {
+        "dataset": {
+            "actorSpecification": 1,
+            "title": "Jobs",
+            "views": {
+                "overview": {
+                    "title": "Jobs",
+                    "transformation": {
+                        "fields": [
+                            "title",
+                            "location",
+                            "postedTime",
+                            "publishedAt",
+                            "jobUrl",
+                            "companyName",
+                            "companyUrl",
+                            "description",
+                            "applicationsCount",
+                            "contractType",
+                            "experienceLevel",
+                            "workType",
+                            "sector",
+                            "salary",
+                            "posterFullName",
+                            "posterProfileUrl",
+                            "companyId",
+                            "applyUrl",
+                            "applyType"
+                        ]
+                    },
+                    "display": {
+                        "component": "table",
+                        "properties": {
+                            "title": {
+                                "label": "Title",
+                                "format": "text"
+                            },
+                            "companyName": {
+                                "label": "Company Name",
+                                "format": "text"
+                            },
+                            "companyId": {
+                                "label": "Company ID",
+                                "format": "text"
+                            },
+                            "location": {
+                                "label": "Location",
+                                "format": "text"
+                            },
+                            "postedTime": {
+                                "label": "Posted time",
+                                "format": "text"
+                            },
+                            "publishedAt": {
+                                "label": "Published at",
+                                "format": "text"
+                            },
+                            "posterFullName": {
+                                "label": "Posted by",
+                                "format": "text"
+                            },
+                            "posterProfileUrl": {
+                                "label": "Poster profile url",
+                                "format": "text"
+                            },
+                            "salary": {
+                                "label": "Salary",
+                                "format": "text"
+                            },
+                            "applicationsCount": {
+                                "label": "Applications count",
+                                "format": "text"
+                            },
+                            "description": {
+                                "label": "Description",
+                                "format": "text"
+                            },
+                            "jobUrl": {
+                                "label": "Job Url",
+                                "format": "text"
+                            },
+                            "companyUrl": {
+                                "label": "Campany Url",
+                                "format": "text"
+                            },
+                            "contractType": {
+                                "label": "Employment type",
+                                "format": "text"
+                            },
+                            "experienceLevel": {
+                                "label": "Seniority level",
+                                "format": "text"
+                            },
+                            "workType": {
+                                "label": "Job function",
+                                "format": "text"
+                            },
+                            "sector": {
+                                "label": "Industries",
+                                "format": "text"
+                            },
+                            "applyUrl": {
+                                "label": "Apply Url",
+                                "format": "text"
+                            },
+                            "applyType": {
+                                "label": "Apply Type",
+                                "format": "text"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
