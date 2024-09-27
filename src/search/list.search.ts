@@ -41,17 +41,21 @@ export class ListSearch extends AbstractSearch<
   }
 
   async addExtrasToUrl(): Promise<this> {
+    const location = await this.searchLocation();
     this.input = {
       ...(this.input || {}),
-      location: await this.searchLocation(),
-      searchLocation: undefined,
+      location: location?.displayName,
+      geoId: location?.geoId,
       searchCompany: undefined,
       f_C: await this.searchCompany(),
     };
     return this.buildUrl();
   }
 
-  protected async searchLocation(): Promise<string | undefined> {
+  protected async searchLocation(): Promise<{
+    displayName: string;
+    geoId: string;
+  } | undefined> {
     const { searchLocation } = this.input || {};
     if (!searchLocation) {
       return undefined;
@@ -63,7 +67,10 @@ export class ListSearch extends AbstractSearch<
     if (!firstElement) {
       return undefined;
     }
-    return encodeURI(`${firstElement.displayName}${firstElement.id}`);
+    log.info(
+      `Finding for area: ${firstElement?.displayName ?? location}`,
+  );
+    return {displayName: firstElement.displayName, geoId: firstElement.id};
   }
 
   protected async searchCompany(): Promise<string | undefined> {

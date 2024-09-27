@@ -6,7 +6,8 @@ export interface LinkedinJobSearchInputDto {
   f_TPR?: string; // time posted
   f_C?: string; // company ids joined by comma
   start?: number; // start index
-  location?: string; // name + geoId
+  location?: string; // name
+  geoId?: string; // geoId
   keywords?: string; // keywords
 }
 
