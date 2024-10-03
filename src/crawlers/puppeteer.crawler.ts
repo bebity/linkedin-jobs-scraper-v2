@@ -37,9 +37,9 @@ const crawler = new PuppeteerCrawler({
   proxyConfiguration,
   maxRequestRetries: 300,
   // maxRequestsPerCrawl: 1,
-  // experiments: {
-  //   requestLocking: false,
-  // },
+  experiments: {
+    requestLocking: false,
+  },
   // Sessions
   useSessionPool: true,
   persistCookiesPerSession: true,
