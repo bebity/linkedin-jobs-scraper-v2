@@ -82,7 +82,7 @@ export abstract class AbstractSearch<Input, Output>
   }
 
   as<T extends AbstractSearch<Input, Output>>(
-    opt?: AbstractSearchConstructor<T>,
+    // opt?: AbstractSearchConstructor<T>,
   ): T {
     return this as unknown as T;
   }
@@ -130,7 +130,7 @@ export abstract class AbstractSearch<Input, Output>
     try {
       return await fn();
     } catch (error) {
-      log.error('Error resolve key ' + key, { error });
+      log.debug('Error resolve key ' + key, { error });
       return undefined;
     }
   }
