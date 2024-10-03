@@ -150,7 +150,6 @@ export class ListSearch extends AbstractSearch<
   }
 
   protected async getIdFromLIElement(
-    page: Page,
     li: ElementHandle<HTMLLIElement>,
   ): Promise<string | undefined> {
     const div = await li.$('div[data-entity-urn]');
@@ -161,7 +160,6 @@ export class ListSearch extends AbstractSearch<
   }
 
   protected async getPublishedDateFromLIElement(
-    page: Page,
     li: ElementHandle<HTMLLIElement>,
   ): Promise<string | undefined> {
     const div = await li.$('.job-search-card__listdate');
@@ -170,7 +168,6 @@ export class ListSearch extends AbstractSearch<
   }
 
   protected async getSalaryFromLIElement(
-    page: Page,
     li: ElementHandle<HTMLLIElement>,
   ): Promise<string | undefined> {
     const div = await li.$('.job-search-card__salary-info');
@@ -179,7 +176,6 @@ export class ListSearch extends AbstractSearch<
   }
 
   protected async getTitleFromLIElement(
-    page: Page,
     li: ElementHandle<HTMLLIElement>,
   ): Promise<string | undefined> {
     const span = await li.$('.sr-only');
@@ -188,7 +184,6 @@ export class ListSearch extends AbstractSearch<
   }
 
   protected async getCompanyNameFromLIElement(
-    page: Page,
     li: ElementHandle<HTMLLIElement>,
   ): Promise<string | undefined> {
     const div = await li.$('.hidden-nested-link');
@@ -197,7 +192,6 @@ export class ListSearch extends AbstractSearch<
   }
 
   protected async getCompanyURLFromLIElement(
-    page: Page,
     li: ElementHandle<HTMLLIElement>,
   ): Promise<string | undefined> {
     const div = await li.$('.hidden-nested-link');
@@ -221,7 +215,7 @@ export class ListSearch extends AbstractSearch<
     const rslt: JobLightDto[] = [];
     for (const li of mainList) {
       const id = await this.nullWrapper(
-        () => this.getIdFromLIElement(puppeteer, li),
+        () => this.getIdFromLIElement(li),
         'id',
       );
       if (!id) {
@@ -230,19 +224,19 @@ export class ListSearch extends AbstractSearch<
       rslt.push({
         id,
         title: await this.nullWrapper(
-          () => this.getTitleFromLIElement(puppeteer, li),
+          () => this.getTitleFromLIElement(li),
           'title',
         ),
         companyName: await this.nullWrapper(
-          () => this.getCompanyNameFromLIElement(puppeteer, li),
+          () => this.getCompanyNameFromLIElement(li),
           'companyName',
         ),
         companyURL: await this.nullWrapper(
-          () => this.getCompanyURLFromLIElement(puppeteer, li),
+          () => this.getCompanyURLFromLIElement(li),
           'companyURL',
         ),
         publishedAt: await this.nullWrapper(
-          () => this.getPublishedDateFromLIElement(puppeteer, li),
+          () => this.getPublishedDateFromLIElement(li),
           'publishedAt',
         ),
       });

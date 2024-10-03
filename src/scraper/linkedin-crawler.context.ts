@@ -47,7 +47,7 @@ export class LinkedinCrawlerContext implements ILinkedinCrawlerContext {
     const buildUrl = () =>
       encodeURI(
         new URL(
-          `https://www.linkedin.com/jobs-guest/api/jobPosting/${this.jobId}`,
+          `https://www.linkedin.com/jobs-guest/api/jobPosting/${this.input as { jobId: string }}`,
         ).toString(),
       );
 

@@ -136,6 +136,7 @@ export class DetailsSearch extends AbstractSearch<JobLightDto, JobDto> {
     if (redirectUrl) {
       return redirectUrl || undefined;
     }
+    return undefined;
   }
 
   protected async getProfileFullNameFromPage(

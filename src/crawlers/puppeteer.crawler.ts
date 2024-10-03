@@ -62,7 +62,7 @@ const crawler = new PuppeteerCrawler({
       },
     },
   },
-  errorHandler: async ({ request, session }) => {
+  errorHandler: async ({ session }) => {
     // log.error(`Request ${request.url} failed too many times trying...`);
     session?.retire();
   },
@@ -74,10 +74,11 @@ const crawler = new PuppeteerCrawler({
     } = handle;
     const search = SearchFactory.fromSearch(userData.search);
 
-    const content = await page?.content();
+    // debug
+    // const content = await page?.content();
 
-    search.writeFile(`./process/${search.getHtmlPath()}`, content);
-    await page.screenshot({ path: `./process/${search.getScreenshotPath()}` });
+    // search.writeFile(`./process/${search.getHtmlPath()}`, content);
+    // await page.screenshot({ path: `./process/${search.getScreenshotPath()}` });
 
     // if (search.type == SearchType.LIST_SEARCH) {
     // const listSearch = search.as(ListSearch);
